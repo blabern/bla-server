@@ -10,7 +10,7 @@ server.listen(3000, () => {
 
 var socket
 
-app.get('/', (req, res) => {
+app.get('/subtitle', (req, res) => {
   res.header('Access-Control-Allow-Origin', '*')
   var query = req.query.q
   translate(query, (tr) => {
@@ -20,10 +20,10 @@ app.get('/', (req, res) => {
   })
 })
 
-io.on('connection', function (_socket) {
+io.on('connection', (_socket) => {
   socket = _socket
   socket.emit('connected')
-  socket.on('translate', function(word) {
+  socket.on('translate', (word) => {
     translate(word, (tr) => {
       console.log('Translating', tr)
       socket.emit('translation', tr)

@@ -1,13 +1,16 @@
 {
+  "name": "bla-server",
   "dependencies": {
     "express": "^4.13.4",
-    "localtunnel": "^1.8.1",
     "socket.io": "^1.4.5",
     "superagent": "^1.7.2"
+  },
+  "devDependencies": {
+    "localtunnel": "^1.8.1"
   },
   "scripts": {
     "start": "npm run server & npm run tunnel:server",
     "server": "node ./src/server",
-    "tunnel:server": "lt -s movielangserver -p 3000",
+    "tunnel:server": "lt -s movielangserver -p 3000"
   }
 }
