@@ -10,6 +10,10 @@ server.listen(3000, () => {
 
 var socket
 
+app.get('/', (req, res) => {
+  res.send('Ok.')
+})
+
 app.get('/subtitle', (req, res) => {
   res.header('Access-Control-Allow-Origin', '*')
   var query = req.query.q
