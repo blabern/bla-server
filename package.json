@@ -9,8 +9,7 @@
     "localtunnel": "^1.8.1"
   },
   "scripts": {
-    "start": "npm run server & npm run tunnel:server",
-    "server": "node ./src/server",
+    "start": "node ./src",
     "tunnel:server": "lt -s movielangserver -p 3000"
   }
 }
