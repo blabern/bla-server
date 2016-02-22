@@ -10,27 +10,31 @@ server.listen(port, () => {
   console.log('Listening on port', port)
 })
 
-var socket
-
 app.get('/', (req, res) => {
   res.send('Ok.')
 })
 
-app.get('/subtitle', (req, res) => {
+app.get('/subtitle/:subtitle', (req, res) => {
   res.header('Access-Control-Allow-Origin', '*')
-  var original = req.query.q
-  if (socket) socket.emit('subtitle', {original: original})
-  res.send({original: original})
+  var subtitle = req.params.subtitle
+
+  io.sockets.emit('subtitle', {original: subtitle})
+  res.send({original: subtitle})
 })
 
-io.on('connection', (_socket) => {
-  socket = _socket
-  socket.emit('connected')
-  socket.on('translate', (word) => {
-    translate(word, (err, tr) => {
-      if (err) return console.error(err)
-      console.log('Translating', tr)
-      socket.emit('translation', tr)
-    })
+app.get('/translation/:original', (req, res) => {
+  res.header('Access-Control-Allow-Origin', '*')
+  var original = req.params.original
+  console.log('Translating', original)
+  translate(original, (err, tr) => {
+    if (err) {
+      console.error(err)
+      return res.status(400).send({error: err.message})
+    }
+    res.send(tr)
   })
+})
+
+io.on('connection', (socket) => {
+  socket.emit('connected')
 })
