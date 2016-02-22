@@ -1,13 +1,7 @@
 var request = require('superagent')
 
 function formatResponse(text) {
-  var data
-
-  try {
-    data = eval('(' + text + ')')
-  } catch(err) {
-    return err.message
-  }
+  var data = eval('(' + text + ')')
 
   var ret = {
     main: data[0][0][0],
@@ -35,8 +29,18 @@ module.exports = function translate(original, callback) {
   request
     .get(url)
     .end((err, res) => {
-      callback({
-        translation: formatResponse(err.rawResponse),
+      // Currently we always use the error, because it can't handle a non-json res
+      // when received headers say its json.
+      var translation
+      try {
+        translation = formatResponse(err.rawResponse)
+      } catch (err) {
+        err.response = err.rawResponse
+        return callback(err)
+      }
+
+      callback(null, {
+        translation: translation,
         original: original
       })
     })

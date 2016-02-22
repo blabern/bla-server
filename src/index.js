@@ -27,7 +27,8 @@ io.on('connection', (_socket) => {
   socket = _socket
   socket.emit('connected')
   socket.on('translate', (word) => {
-    translate(word, (tr) => {
+    translate(word, (err, tr) => {
+      if (err) return console.log(err)
       console.log('Translating', tr)
       socket.emit('translation', tr)
     })
