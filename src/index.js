@@ -18,12 +18,9 @@ app.get('/', (req, res) => {
 
 app.get('/subtitle', (req, res) => {
   res.header('Access-Control-Allow-Origin', '*')
-  var query = req.query.q
-  translate(query, (tr) => {
-    console.log('Translating', tr)
-    if (socket) socket.emit('subtitle', tr)
-    res.json(tr)
-  })
+  var original = req.query.q
+  if (socket) socket.emit('subtitle', {original: original})
+  res.send({original: original})
 })
 
 io.on('connection', (_socket) => {
