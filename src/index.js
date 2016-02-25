@@ -22,11 +22,17 @@ app.get('/subtitle/:subtitle', (req, res) => {
   res.send({original: subtitle})
 })
 
-app.get('/translation/:original', (req, res) => {
+app.get('/translation/:langs/:original', (req, res) => {
   res.header('Access-Control-Allow-Origin', '*')
   var original = req.params.original
+  var langs = req.params.langs.split('-')
+  var options = {
+    src: langs[0],
+    target: langs[1]
+  }
+
   console.log('Translating', original)
-  translate(original, (err, tr) => {
+  translate(original, options, (err, tr) => {
     if (err) {
       console.error(err)
       return res.status(400).send({error: err.message})

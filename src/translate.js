@@ -20,11 +20,9 @@ function formatResponse(text) {
   return ret
 }
 
-module.exports = function translate(original, callback) {
-  var sourceLang = 'en'
-  var targetLang = 'ru'
+module.exports = function translate(original, options, callback) {
   var url = "http://translate.googleapis.com/translate_a/single?client=gtx&sl="
-  + sourceLang + "&tl=" + targetLang + "&dt=bd&dt=t&q=" + encodeURI(original)
+  + options.src + "&tl=" + options.target + "&dt=bd&dt=t&q=" + encodeURI(original)
 
   request
     .get(url)
