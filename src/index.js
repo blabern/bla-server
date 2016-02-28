@@ -13,7 +13,9 @@ var sockets = {}
 
 function addSocket(auth, socket) {
   if (!sockets[auth]) sockets[auth] = []
-  sockets[auth].push(socket)
+  if (sockets[auth].indexOf(socket) === -1) {
+    sockets[auth].push(socket)
+  }
 }
 
 server.listen(port, () => {
@@ -74,6 +76,7 @@ app.use(function(err, req, res, next) {
 
 io.on('connection', (socket) => {
   log('Incomming connection.')
+  socket.emit('authRequest')
   socket.on('authorize', function(auth) {
     addSocket(auth, socket)
     socket.emit('authorized', auth)
