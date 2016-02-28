@@ -1,29 +1,55 @@
 var express = require('express')
+var bodyParser = require('body-parser');
 var app = express()
 var server = require('http').Server(app)
 var io = require('socket.io')(server)
 var translate = require('./translate')
 
 var port = process.env.PORT || 3000
+var log = console.log.bind(console)
+var error = console.error.bind(console)
+
+var sockets = {}
+
+function addSocket(auth, socket) {
+  if (!sockets[auth]) sockets[auth] = []
+  sockets[auth].push(socket)
+}
 
 server.listen(port, () => {
-  console.log('Listening on port', port)
+  log('Listening on port', port)
 })
+
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: false }))
 
 app.get('/', (req, res) => {
   res.send('Ok.')
 })
 
-app.get('/subtitle/:subtitle', (req, res) => {
+app.all('/*', (req, res, next) => {
+  res.header('Access-Control-Allow-Headers', 'content-type')
   res.header('Access-Control-Allow-Origin', '*')
-  var subtitle = req.params.subtitle
+  next()
+})
 
-  io.sockets.emit('subtitle', {original: subtitle})
-  res.send({original: subtitle})
+app.post('/subtitle', (req, res) => {
+  var subtitle = req.body.subtitle
+  var auth = req.query.auth
+
+  var connected = 0
+
+  if (sockets[auth]) {
+    connected = sockets[auth].length
+    sockets[auth].forEach(socket => {
+      socket.emit('subtitle', {original: subtitle})
+    })
+  }
+  log('Subtitle', subtitle)
+  res.send({subtitle: subtitle, connected: connected})
 })
 
 app.get('/translation/:langs/:original', (req, res) => {
-  res.header('Access-Control-Allow-Origin', '*')
   var original = req.params.original
   var langs = req.params.langs.split('-')
   var options = {
@@ -31,16 +57,25 @@ app.get('/translation/:langs/:original', (req, res) => {
     target: langs[1]
   }
 
-  console.log('Translating', original)
+  log('Translating', original)
   translate(original, options, (err, tr) => {
     if (err) {
-      console.error(err)
+      error(err)
       return res.status(400).send({error: err.message})
     }
     res.send(tr)
   })
 })
 
+app.use(function(err, req, res, next) {
+  console.error(err.stack)
+  res.status(500).send('Something bad happened.')
+})
+
 io.on('connection', (socket) => {
-  socket.emit('connected')
+  log('Incomming connection.')
+  socket.on('authorize', function(auth) {
+    addSocket(auth, socket)
+    socket.emit('authorized', auth)
+  })
 })
