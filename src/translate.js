@@ -2,10 +2,10 @@ var request = require('superagent')
 
 function formatResponse(text) {
   var data = eval('(' + text + ')')
-
   var ret = {
     main: data[0][0][0],
-    others: []
+    others: [],
+    thesaurus: []
   }
 
   if (data[1]) {
@@ -17,12 +17,24 @@ function formatResponse(text) {
     })
   }
 
+  // Definitions
+  if (data[12]) {
+    data[12].forEach(function(t) {
+      ret.thesaurus.push({
+        type: t[0],
+        translations: t[1].map(function(tr) {
+          return tr[0]
+        })
+      })
+    })
+  }
+
   return ret
 }
 
 module.exports = function translate(original, options, callback) {
   var url = "http://translate.googleapis.com/translate_a/single?client=gtx&sl="
-  + options.src + "&tl=" + options.target + "&dt=bd&dt=t&q=" + encodeURI(original)
+  + options.src + "&tl=" + options.target + "&dt=bd&dt=md&dt=t&q=" + encodeURI(original)
 
   request
     .get(url)
