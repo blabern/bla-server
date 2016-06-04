@@ -6,4 +6,4 @@ function log(err, data) {
 }
 
 // translate('Play', {src: 'en', target: 'en'}, log)
-translate('bla', {src: 'en', target: 'ru'}, log)
+translate('מִבְחָן', {src: 'iw', target: 'en'}, log)

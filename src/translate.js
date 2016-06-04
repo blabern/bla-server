@@ -1,4 +1,4 @@
-var request = require('superagent')
+var request = require('request')
 
 function formatResponse(text) {
   var data = eval('(' + text + ')')
@@ -36,22 +36,25 @@ module.exports = function translate(original, options, callback) {
   var url = "http://translate.googleapis.com/translate_a/single?client=gtx&sl="
   + options.src + "&tl=" + options.target + "&dt=bd&dt=md&dt=t&q=" + encodeURI(original)
 
-  request
-    .get(url)
-    .end((err, res) => {
-      // Currently we always use the error, because it can't handle a non-json res
-      // when received headers say its json.
-      var translation
-      try {
-        translation = formatResponse(err.rawResponse)
-      } catch (err) {
-        err.response = err.rawResponse
-        return callback(err)
-      }
+  var headers = {
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.79 Safari/537.36',
+    Referer: 'https://translate.google.de/'
+  }
 
-      callback(null, {
-        translation: translation,
-        original: original
-      })
+  request({url, headers}, (err, res, body) => {
+    // Currently we always use the error, because it can't handle a non-json res
+    // when received headers say its json.
+    var translation
+    try {
+      translation = formatResponse(body)
+    } catch (err) {
+      err.body = body
+      return callback(err)
+    }
+
+    callback(null, {
+      translation: translation,
+      original: original
     })
+  })
 }
