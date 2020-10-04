@@ -1,5 +1,8 @@
 {
   "name": "lingvo-server",
+  "engines": {
+    "node": "14.0.0"
+  },
   "dependencies": {
     "body-parser": "^1.15.0",
     "express": "^4.13.4",
