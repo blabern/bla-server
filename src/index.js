@@ -47,7 +47,7 @@ app.post("/subtitle", (req, res) => {
       socket.emit("subtitle", { original: subtitle });
     });
   }
-  log("Subtitle", subtitle);
+  //  log("Subtitle", subtitle);
   res.send({ subtitle: subtitle, connected: connected });
 });
 
@@ -59,7 +59,7 @@ app.get("/translation/:langs/:original", (req, res) => {
     target: langs[1],
   };
 
-  log("Translating", original);
+  //log("Translating", original);
   translate(original, options, (err, tr) => {
     if (err) {
       error(err);
