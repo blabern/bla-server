@@ -2,6 +2,8 @@
 const translation = require("./translation");
 const socketio = require("./socketio");
 const user = require("./user");
+const features = require("./features");
+const history = require("./history");
 
 const log = console.log.bind(console);
 const error = console.error.bind(console);
@@ -17,6 +19,7 @@ exports.initRoutes = (app) => {
   app.all("/*", (req, res, next) => {
     res.header("Access-Control-Allow-Headers", "content-type, authorization");
     res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "GET,HEAD,POST,PUT,DELETE");
     next();
   });
 
@@ -52,6 +55,46 @@ exports.initRoutes = (app) => {
   app.post("/user", async (req, res) => {
     try {
       const data = await user.update(req.body);
+      res.send(data);
+    } catch (err) {
+      error(err);
+      return res.status(400).send({ error: err.message });
+    }
+  });
+
+  app.get("/features", async (req, res) => {
+    try {
+      const data = await features.get();
+      res.send(data);
+    } catch (err) {
+      error(err);
+      return res.status(400).send({ error: err.message });
+    }
+  });
+
+  app.put("/history", async (req, res) => {
+    try {
+      const data = await history.create(req.body);
+      res.send(data);
+    } catch (err) {
+      error(err);
+      return res.status(400).send({ error: err.message });
+    }
+  });
+
+  app.get("/history", async (req, res) => {
+    try {
+      const data = await history.read(req.body);
+      res.send(data);
+    } catch (err) {
+      error(err);
+      return res.status(400).send({ error: err.message });
+    }
+  });
+
+  app.delete("/history/:ids", async (req, res) => {
+    try {
+      const data = await history.delete(req.params.ids.split(","));
       res.send(data);
     } catch (err) {
       error(err);
