@@ -52,7 +52,7 @@ exports.initRoutes = (app) => {
     });
   });
 
-  app.post("/user", async (req, res) => {
+  app.put("/user", async (req, res) => {
     try {
       const data = await user.update(req.body);
       res.send(data);
