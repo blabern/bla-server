@@ -72,7 +72,7 @@ exports.initRoutes = (app) => {
     }
   });
 
-  app.put("/history", async (req, res) => {
+  app.post("/history", async (req, res) => {
     try {
       const data = await history.create(req.body);
       res.send(data);
@@ -85,6 +85,16 @@ exports.initRoutes = (app) => {
   app.get("/history", async (req, res) => {
     try {
       const data = await history.read(req.body);
+      res.send(data);
+    } catch (err) {
+      error(err);
+      return res.status(400).send({ error: err.message });
+    }
+  });
+
+  app.put("/history/:id", async (req, res) => {
+    try {
+      const data = await history.update(req.params.id, req.body);
       res.send(data);
     } catch (err) {
       error(err);

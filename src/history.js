@@ -2,22 +2,21 @@
 
 const HistoryEntry = model("HistoryEntry");
 
+exports.create = async (entryData) => {
+  const entry = new HistoryEntry(entryData);
+  await entry.save();
+  return entry;
+};
+
 exports.read = async () => {
   return await HistoryEntry.find({}).exec();
 };
 
-exports.create = async (entryData) => {
-  if (entryData._id) {
-    const entry = await HistoryEntry.findByIdAndUpdate(
-      entryData._id,
-      entryData,
-      { new: true, overwrite: true }
-    );
-    return entry;
-  }
-  const entry = new HistoryEntry(entryData);
-  await entry.save();
-  return entry;
+exports.update = async (id, entryData) => {
+  return await HistoryEntry.findByIdAndUpdate(id, entryData, {
+    new: true,
+    overwrite: true,
+  });
 };
 
 exports.delete = async (ids) => {
