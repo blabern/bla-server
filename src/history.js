@@ -8,8 +8,8 @@ exports.create = async (entryData) => {
   return entry;
 };
 
-exports.read = async () => {
-  return await HistoryEntry.find({}).exec();
+exports.read = async (userId) => {
+  return await HistoryEntry.find({ userId }).exec();
 };
 
 exports.update = async (id, entryData) => {

@@ -1,4 +1,4 @@
-﻿const { Schema, model } = require("mongoose");
+﻿const { Schema, model, ObjectId } = require("mongoose");
 
 const User = new Schema({
   email: { type: String, required: true, unique: true },
@@ -15,6 +15,7 @@ const HistoryEntry = new Schema({
   createdAt: { type: Date, required: true },
   subtitle: { type: String, required: true },
   words: { type: [{ pos: Number, text: String }], required: true },
+  userId: { type: ObjectId, required: true },
 });
 
 module.exports = {
