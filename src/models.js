@@ -18,7 +18,30 @@ const HistoryEntry = new Schema({
   userId: { type: ObjectId, required: true },
 });
 
+const Purchase = new Schema({
+  id: { type: Number, required: true },
+  transactionId: { type: String, required: true },
+  status: { type: String, required: true },
+  emailAddress: { type: String, required: true },
+  currency: { type: String, required: true },
+  transactionTime: { type: Date, required: true },
+  subtotal: { type: Number, required: true },
+  shipping: { type: Number, required: true },
+  discount: { type: Number, required: true },
+  tax: { type: Number, required: true },
+  total: { type: Number, required: true },
+  products: [
+    {
+      unitPrice: { type: Number, required: true },
+      quantity: { type: Number, required: true },
+      sku: { type: String, required: true },
+      name: { type: String, required: true },
+    },
+  ],
+});
+
 module.exports = {
   User,
   HistoryEntry,
+  Purchase,
 };

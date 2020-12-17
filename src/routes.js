@@ -4,6 +4,7 @@ const socketio = require("./socketio");
 const user = require("./user");
 const features = require("./features");
 const history = require("./history");
+const purchase = require("./purchase");
 
 const log = console.log.bind(console);
 const error = console.error.bind(console);
@@ -31,6 +32,18 @@ exports.initRoutes = (app) => {
     res.send("Ok.");
   });
 
+  app.post("/purchase/:hookName", async (req, res) => {
+    try {
+      const data = await purchase.create(req.params.hookName, req.body);
+      res.send(data);
+    } catch (err) {
+      error(err);
+      return res.status(400).send({ error: err.message });
+    }
+  });
+
+  // TODO add oauth token validation middleware here
+
   app.put("/user", async (req, res) => {
     try {
       const data = await user.update(req.body);
@@ -40,8 +53,6 @@ exports.initRoutes = (app) => {
       return res.status(400).send({ error: err.message });
     }
   });
-
-  // TODO add oauth token validation middleware here
 
   app.post("/subtitle", (req, res) => {
     const { subtitle } = req.body;
