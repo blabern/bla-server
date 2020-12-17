@@ -9,6 +9,7 @@
     "express": "^4.13.4",
     "flow-remove-types": "^2.140.0",
     "mongoose": "^5.11.7",
+    "node-fetch": "^2.6.1",
     "request": "^2.72.0",
     "socket.io": "^1.4.5"
   },
