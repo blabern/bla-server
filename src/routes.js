@@ -83,7 +83,7 @@ exports.initRoutes = (app) => {
 
   app.get("/features", async (req, res) => {
     try {
-      const data = await features.get();
+      const data = await features.read();
       res.send(data);
     } catch (err) {
       error(err);

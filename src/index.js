@@ -1,3 +1,6 @@
+// TODO this is supposed to be only for dev
+require("flow-remove-types/register");
+
 const express = require("express");
 const { Server } = require("http");
 const { initMongoDb } = require("./mongodb");

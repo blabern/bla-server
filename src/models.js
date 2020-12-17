@@ -20,6 +20,7 @@ const HistoryEntry = new Schema({
 
 const Purchase = new Schema({
   id: { type: Number, required: true },
+  userId: { type: ObjectId, required: true },
   transactionId: { type: String, required: true },
   status: { type: String, required: true },
   emailAddress: { type: String, required: true },

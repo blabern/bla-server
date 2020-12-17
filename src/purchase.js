@@ -1,10 +1,37 @@
-﻿const { model } = require("mongoose");
+﻿// @flow
+const { model } = require("mongoose");
 const camelcaseKeys = require("camelcase-keys");
 
 const Purchase = model("Purchase");
+const User = model("User");
 const { CONVERTKIT_HOOK_NAME } = process.env;
 
-exports.create = async (hookName, data) => {
+type PurchaseType = {|
+  id: string,
+  userId: string,
+  transactionId: string,
+  status: string,
+  emailAddress: string,
+  currency: string,
+  transactionTime: Date,
+  subtotal: number,
+  shipping: number,
+  discount: number,
+  tax: number,
+  total: number,
+  products: [
+    {|
+      unitPrice: number,
+      quantity: number,
+      sku: string,
+      name: string,
+    |}
+  ],
+|};
+
+type CreateType = (string, {}) => Promise<PurchaseType>;
+
+const create: CreateType = async (hookName, data) => {
   if (hookName !== CONVERTKIT_HOOK_NAME) {
     throw new Error("Unauthorized");
   }
@@ -18,3 +45,5 @@ exports.create = async (hookName, data) => {
   await purchase.save();
   return purchase;
 };
+
+exports.create = create;
