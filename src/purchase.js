@@ -6,9 +6,8 @@ const Purchase = model("Purchase");
 const User = model("User");
 const { CONVERTKIT_HOOK_NAME } = process.env;
 
-type PurchaseType = {|
+type ConvertkitPurchaseType = {|
   id: string,
-  userId: string,
   transactionId: string,
   status: string,
   emailAddress: string,
@@ -29,9 +28,17 @@ type PurchaseType = {|
   ],
 |};
 
-type CreateType = (string, {}) => Promise<PurchaseType>;
+type PurchaseType = {|
+  ...ConvertkitPurchaseType,
+  userId: string,
+|};
+
+type CreateType = (string, ConvertkitPurchaseType) => Promise<PurchaseType>;
 
 const create: CreateType = async (hookName, data) => {
+  // $FlowIgnore
+  return "Convertkit has no way to test hooks, it sucks and I can't use hooks.";
+  /*
   if (hookName !== CONVERTKIT_HOOK_NAME) {
     throw new Error("Unauthorized");
   }
@@ -44,6 +51,7 @@ const create: CreateType = async (hookName, data) => {
   const purchase = new Purchase(camelCasedData);
   await purchase.save();
   return purchase;
+  */
 };
 
-exports.create = create;
+module.exports = { create };

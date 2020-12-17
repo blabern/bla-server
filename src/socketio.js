@@ -5,7 +5,7 @@ const error = console.error.bind(console);
 
 const sockets = {};
 
-exports.initSocketio = (server) => {
+const initSocketio = (server) => {
   const io = socketio(server);
 
   function addSocket(auth, socket) {
@@ -26,7 +26,7 @@ exports.initSocketio = (server) => {
   });
 };
 
-exports.sendSubtitle = ({ auth, subtitle }) => {
+const sendSubtitle = ({ auth, subtitle }) => {
   let connected = 0;
   if (sockets[auth]) {
     connected = sockets[auth].length;
@@ -36,3 +36,5 @@ exports.sendSubtitle = ({ auth, subtitle }) => {
   }
   return connected;
 };
+
+module.exports = { initSocketio, sendSubtitle };

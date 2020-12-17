@@ -10,7 +10,7 @@ for (const name in models) {
   model(name, models[name]);
 }
 
-exports.initMongoDb = () => {
+const initMongoDb = () => {
   connect(
     `mongodb+srv://${MONGODB_USER}:${MONGODB_PASSWORD}@lingvotv.ujzta.mongodb.net/${MONGODB_DATABASE}`,
     { useNewUrlParser: true, useUnifiedTopology: true }
@@ -24,3 +24,5 @@ exports.initMongoDb = () => {
     log("MongoDB connection open");
   });
 };
+
+module.exports = { initMongoDb };

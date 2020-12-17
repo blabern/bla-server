@@ -72,7 +72,7 @@ exports.initRoutes = (app) => {
     };
 
     //log("Translating", original);
-    translation.translate(original, options, (err, tr) => {
+    translation.read(original, options, (err, tr) => {
       if (err) {
         error(err);
         return res.status(400).send({ error: err.message });
@@ -126,7 +126,7 @@ exports.initRoutes = (app) => {
 
   app.delete("/history/:ids", async (req, res) => {
     try {
-      const data = await history.delete(req.params.ids.split(","));
+      const data = await history.del(req.params.ids.split(","));
       res.send(data);
     } catch (err) {
       error(err);

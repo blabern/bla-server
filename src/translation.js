@@ -32,7 +32,7 @@ function formatResponse(text) {
   return ret;
 }
 
-exports.translate = (original, options, callback) => {
+const read = (original, options, callback) => {
   var url =
     "http://translate.googleapis.com/translate_a/single?client=gtx&sl=" +
     options.src +
@@ -64,3 +64,5 @@ exports.translate = (original, options, callback) => {
     });
   });
 };
+
+module.exports = { read };

@@ -17,7 +17,7 @@
     "localtunnel": "^1.8.1"
   },
   "scripts": {
-    "start": "node ./src",
-    "tunnel:server": "lt -s movielangserver -p 3000"
+    "server": "node ./src",
+    "tunnel": "lt -s lingvoserver -p 3000"
   }
 }

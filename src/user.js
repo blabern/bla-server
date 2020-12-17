@@ -2,7 +2,7 @@
 
 const User = model("User");
 
-exports.update = async (userData) => {
+const update = async (userData) => {
   let user = await User.findOne({ email: userData.email }).exec();
 
   // It's a signup.
@@ -19,3 +19,5 @@ exports.update = async (userData) => {
   await user.save();
   return user;
 };
+
+module.exports = { update };
