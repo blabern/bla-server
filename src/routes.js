@@ -4,11 +4,29 @@ const socketio = require("./socketio");
 const user = require("./user");
 const features = require("./features");
 const history = require("./history");
+const stripe = require("./stripe");
 
 const log = console.log.bind(console);
 const error = console.error.bind(console);
 
 exports.initRoutes = (app) => {
+  app.post(
+    "/stripe/hooks",
+    bodyParser.raw({ type: "application/json" }),
+    async (req, res) => {
+      try {
+        const data = await stripe.handle(
+          req.body,
+          req.headers["stripe-signature"]
+        );
+        res.send(data);
+      } catch (err) {
+        error(err);
+        return res.status(400).send({ error: err.message });
+      }
+    }
+  );
+
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use((req, res, next) => {

@@ -1,6 +1,4 @@
-﻿const { model } = require("mongoose");
-
-const HistoryEntry = model("HistoryEntry");
+﻿const { HistoryEntry } = require("./models");
 
 const create = async (entryData) => {
   const entry = new HistoryEntry(entryData);

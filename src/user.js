@@ -1,6 +1,4 @@
-﻿const { model } = require("mongoose");
-
-const User = model("User");
+﻿const { User } = require("./models");
 
 const update = async (userData) => {
   let user = await User.findOne({ email: userData.email }).exec();
