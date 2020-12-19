@@ -2,52 +2,38 @@
 const camelcaseKeys = require("camelcase-keys");
 const fetch = require("node-fetch");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-const { Purchase, User } = require("./models");
+const { Subscription, User } = require("./models");
 
 const { STRIPE_HOOKS_SECRET } = process.env;
 
-type StripeInvoceType = {|
-  customerEmail: string,
-  customer: string,
-  id: string,
-  paymentIntent: string,
-  subscription: string,
-  billingReason: string,
-  created: number,
-  periodStart: number,
-  periodEnd: number,
-  status: string,
-|};
-type OnInvoicePaidType = (StripeInvoceType) => Promise<Purchase | void>;
+const mapStripeSubscriptionProps = (stripeSubscription) => ({
+  subscriptionId: stripeSubscription.id,
+  createdAt: new Date(stripeSubscription.created * 1000),
+  updatedAt: new Date(),
+  status: stripeSubscription.status,
+});
 
-const retrieveSubscription = async (subscriptionId) => {
-  const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-  if (subscription) return camelcaseKeys(subscription);
-};
+const onSubscriptionCreated = async (stripeSubscription) => {
+  const stripeCustomer = await stripe.customers.retrieve(
+    stripeSubscription.customer
+  );
+  if (!stripeCustomer) {
+    throw Error(`Unknown Stripe customer ${stripeSubscription.customer}`);
+  }
 
-const onInvoicePaid: OnInvoicePaidType = async (invoice) => {
-  const subscription = await retrieveSubscription(invoice.subscription);
-  if (!subscription) return;
-  const purchase = new Purchase({
-    email: invoice.customerEmail,
-    customerId: invoice.customer,
-    invoiceId: invoice.id,
-    paymentIntentId: invoice.paymentIntent,
-    subscriptionId: invoice.subscription,
-    reason: invoice.billingReason,
-    paidAt: new Date(invoice.created * 1000),
-    periodStart: new Date(subscription.currentPeriodStart * 1000),
-    periodEnd: new Date(subscription.currentPeriodEnd * 1000),
-    status: invoice.status,
+  const subscription = new Subscription({
+    ...mapStripeSubscriptionProps(stripeSubscription),
+    email: stripeCustomer.email,
   });
-  return await purchase.save();
+  await subscription.save();
+  return subscription;
 };
 
 const handlers = {
-  "invoice.paid": onInvoicePaid,
+  "customer.subscription.created": onSubscriptionCreated,
 };
 
-type HandleEventType = (Buffer, string) => Promise<Purchase | void>;
+type HandleEventType = (Buffer, string) => Promise<Subscription | void>;
 
 const handleEvent: HandleEventType = async (eventPayload, signature) => {
   const event = stripe.webhooks.constructEvent(
@@ -66,17 +52,36 @@ const handleEvent: HandleEventType = async (eventPayload, signature) => {
 type HasActiveSubscriptionType = (bson$ObjectId) => Promise<boolean>;
 
 const hasActiveSubscription: HasActiveSubscriptionType = async (userId) => {
-  const user = await User.findById(userId).exec();
+  const user = await User.findOne({ _id: userId }).exec();
   if (!user) return false;
-  const purchases = await Purchase.find({ email: user.email }).exec();
-  const now = new Date();
-  return purchases.some((purchase) => {
-    return (
-      purchase.status === "paid" &&
-      purchase.periodStart < now &&
-      purchase.periodEnd > now
+
+  // Gets the latest subscription.
+  const subscription = await Subscription.findOne({ email: user.email })
+    .sort({ createdAt: -1 })
+    .exec();
+  if (!subscription) return false;
+
+  // We want to update the subscription status once per day only to avoid
+  // having to send requests to stripe every time user loads the app.
+  const needsUpdate = subscription.updatedAt.getDate() !== new Date().getDate();
+
+  if (needsUpdate) {
+    const stripeSubscription = await stripe.subscriptions.retrieve(
+      subscription.subscriptionId
     );
-  });
+
+    // If stripe doesn't have this subscription, we don't need to have it either.
+    if (!stripeSubscription) {
+      await Subscription.deleteOne({ _id: subscription._id });
+      return false;
+    }
+
+    // Update our subscription with data from stripe.
+    Object.assign(subscription, mapStripeSubscriptionProps(stripeSubscription));
+    await subscription.save();
+  }
+
+  return subscription.status === "active";
 };
 
 module.exports = { handleEvent, hasActiveSubscription };

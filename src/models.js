@@ -47,38 +47,35 @@ HistoryEntrySchema.loadClass(HistoryEntryDocument);
 // prettier-ignore
 const HistoryEntry: Class<HistoryEntryDocument> = model("HistoryEntry", HistoryEntrySchema);
 
-class PurchaseDocument /*:: extends Mongoose$Document */ {
+class SubscriptionDocument /*:: extends Mongoose$Document */ {
   email: string;
-  customerId: string;
-  invoiceId: string;
-  paymentIntentId: string;
   subscriptionId: string;
-  reason: string;
-  paidAt: Date;
-  periodStart: Date;
-  periodEnd: Date;
-  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+  status:
+    | "incomplete"
+    | "incomplete_expired"
+    | "trialing"
+    | "active"
+    | "past_due"
+    | "canceled"
+    | "unpaid";
 }
 
-const PurchaseSchema = new Schema({
+const SubscriptionSchema = new Schema({
   email: { type: String, required: true },
-  customerId: { type: String, required: true },
-  invoiceId: { type: String, required: true },
-  paymentIntentId: { type: String, required: true },
   subscriptionId: { type: String, required: true },
-  reason: { type: String, required: true },
-  paidAt: { type: Date, required: true },
-  periodStart: { type: Date, required: true },
-  periodEnd: { type: Date, required: true },
+  createdAt: { type: Date, required: true },
+  updatedAt: { type: Date, required: true },
   status: { type: String, required: true },
 });
 
-PurchaseSchema.loadClass(PurchaseDocument);
+SubscriptionSchema.loadClass(SubscriptionDocument);
 // prettier-ignore
-const Purchase: Class<PurchaseDocument> = model("Purchase", PurchaseSchema);
+const Subscription: Class<SubscriptionDocument> = model("Subscription", SubscriptionSchema);
 
 module.exports = {
   User,
   HistoryEntry,
-  Purchase,
+  Subscription,
 };
