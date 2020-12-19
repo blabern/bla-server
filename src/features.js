@@ -1,13 +1,12 @@
 ﻿// @flow
 const stripe = require("./stripe");
 
-type ReadType = (string) => Promise<{| history: boolean |}>;
+type ReadType = (bson$ObjectId) => Promise<{| history: boolean |}>;
 
 const read: ReadType = async (userId) => {
-  const allPurchases = []; //await stripe.read(userId);
+  const hasActiveSubscription = await stripe.hasActiveSubscription(userId);
   return {
-    // TODO make sure purchase have actual valid subscription for the month
-    history: allPurchases.length > 0,
+    history: hasActiveSubscription,
   };
 };
 
