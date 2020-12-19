@@ -20,13 +20,13 @@ type StripeInvoceType = {|
 |};
 type OnInvoicePaidType = (StripeInvoceType) => Promise<Purchase | void>;
 
-const retrieveSubscriptions = async (subscriptionId) => {
+const retrieveSubscription = async (subscriptionId) => {
   const subscription = await stripe.subscriptions.retrieve(subscriptionId);
   if (subscription) return camelcaseKeys(subscription);
 };
 
 const onInvoicePaid: OnInvoicePaidType = async (invoice) => {
-  const subscription = await retrieveSubscriptions(invoice.subscription);
+  const subscription = await retrieveSubscription(invoice.subscription);
   if (!subscription) return;
   const purchase = new Purchase({
     email: invoice.customerEmail,
@@ -47,9 +47,9 @@ const handlers = {
   "invoice.paid": onInvoicePaid,
 };
 
-type HandleType = (Buffer, string) => Promise<Purchase | void>;
+type HandleEventType = (Buffer, string) => Promise<Purchase | void>;
 
-const handle: HandleType = async (eventPayload, signature) => {
+const handleEvent: HandleEventType = async (eventPayload, signature) => {
   const event = stripe.webhooks.constructEvent(
     eventPayload,
     signature,
@@ -79,4 +79,4 @@ const hasActiveSubscription: HasActiveSubscriptionType = async (userId) => {
   });
 };
 
-module.exports = { handle, hasActiveSubscription };
+module.exports = { handleEvent, hasActiveSubscription };

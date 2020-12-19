@@ -15,7 +15,7 @@ exports.initRoutes = (app) => {
     bodyParser.raw({ type: "application/json" }),
     async (req, res) => {
       try {
-        const data = await stripe.handle(
+        const data = await stripe.handleEvent(
           req.body,
           req.headers["stripe-signature"]
         );
