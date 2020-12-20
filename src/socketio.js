@@ -1,11 +1,18 @@
-﻿const socketio = require("socket.io");
+﻿// @flow
+const socketio = require("socket.io");
 
 const log = console.log.bind(console);
 const error = console.error.bind(console);
 
 const sockets = {};
 
-const initSocketio = (server) => {
+type InitSocketio = (?http$Server) => void;
+
+const initSocketio: InitSocketio = (server) => {
+  if (!server) {
+    throw new Error("Socketio requires server");
+  }
+
   const io = socketio(server);
 
   function addSocket(auth, socket) {
@@ -26,7 +33,9 @@ const initSocketio = (server) => {
   });
 };
 
-const sendSubtitle = ({ auth, subtitle }) => {
+type SendSubtitleType = ({| auth: string, subtitle: string |}) => number;
+
+const sendSubtitle: SendSubtitleType = ({ auth, subtitle }) => {
   let connected = 0;
   if (sockets[auth]) {
     connected = sockets[auth].length;

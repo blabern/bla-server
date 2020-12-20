@@ -1,7 +1,7 @@
-const request = require("request");
+// @flow
+const fetch = require("node-fetch");
 
-function formatResponse(text) {
-  var data = eval("(" + text + ")");
+function formatResponse(data) {
   var ret = {
     main: data[0][0][0],
     others: [],
@@ -32,7 +32,35 @@ function formatResponse(text) {
   return ret;
 }
 
-const read = (original, options, callback) => {
+type ReadResponseType = {|
+  translation: {|
+    main: Array<{|
+      type: string,
+      translations: string[],
+    |}>,
+    others: Array<{|
+      type: string,
+      translations: string[],
+    |}>,
+    thesaurus: Array<{|
+      type: string,
+      translations: string[],
+    |}>,
+  |},
+  original: string,
+|};
+
+type ReadType = (
+  string,
+  {| src: string, target: string |}
+) => Promise<ReadResponseType>;
+
+const read: ReadType = async (original, options) => {
+  if (!original) throw new Error("Arg original required");
+  if (!options) throw new Error("Arg options required");
+  if (!options.src) throw new Error("Arg options.src is required");
+  if (!options.target) throw new Error("Arg options.target is required");
+
   var url =
     "http://translate.googleapis.com/translate_a/single?client=gtx&sl=" +
     options.src +
@@ -47,22 +75,20 @@ const read = (original, options, callback) => {
     Referer: "https://translate.google.de/",
   };
 
-  request({ url, headers }, (err, res, body) => {
-    // Currently we always use the error, because it can't handle a non-json res
-    // when received headers say its json.
-    var translation;
-    try {
-      translation = formatResponse(body);
-    } catch (err) {
-      err.body = body;
-      return callback(err);
-    }
+  const res = await fetch(url, { headers });
+  const body = await res.json();
 
-    callback(null, {
-      translation: translation,
-      original: original,
-    });
-  });
+  // Currently we always use the error, because it can't handle a non-json res
+  // when received headers say its json.
+  var translation;
+  try {
+    translation = formatResponse(body);
+  } catch (err) {
+    err.body = body;
+    throw err;
+  }
+
+  return { translation, original };
 };
 
 module.exports = { read };

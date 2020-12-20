@@ -1,19 +1,33 @@
 ﻿// @flow
 const camelcaseKeys = require("camelcase-keys");
-const fetch = require("node-fetch");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { Subscription, User } = require("./models");
 
 const { STRIPE_HOOKS_SECRET } = process.env;
 
-const mapStripeSubscriptionProps = (stripeSubscription) => ({
+type StripeSubscriptionType = {
+  id: string,
+  created: number,
+  status: $PropertyType<Subscription, "status">,
+  customer: string,
+};
+
+type MapStripeSubscriptionPropsType = (StripeSubscriptionType) => $Shape<Subscription>;
+
+const mapStripeSubscriptionProps: MapStripeSubscriptionPropsType = (
+  stripeSubscription
+) => ({
   subscriptionId: stripeSubscription.id,
   createdAt: new Date(stripeSubscription.created * 1000),
   updatedAt: new Date(),
   status: stripeSubscription.status,
 });
 
-const onSubscriptionCreated = async (stripeSubscription) => {
+type OnSubscriptionCreatedType = (StripeSubscriptionType) => Promise<Subscription>;
+
+const onSubscriptionCreated: OnSubscriptionCreatedType = async (
+  stripeSubscription
+) => {
   const stripeCustomer = await stripe.customers.retrieve(
     stripeSubscription.customer
   );
