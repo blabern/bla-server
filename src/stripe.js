@@ -23,9 +23,12 @@ const mapStripeSubscriptionProps: MapStripeSubscriptionPropsType = (
   status: stripeSubscription.status,
 });
 
-type OnSubscriptionCreatedType = (StripeSubscriptionType) => Promise<Subscription>;
+type OnSubscriptionCreatedOrUpdatedType = (StripeSubscriptionType) => Promise<?Subscription>;
 
-const onSubscriptionCreated: OnSubscriptionCreatedType = async (
+// In case user created a subscription but "customer.subscription.created" wasn't called
+// e.g. due to server restart.
+// We can update subscription (check "Rest the billing cycle") from the UI and it will create it.
+const onSubscriptionCreatedOrUpdated: OnSubscriptionCreatedOrUpdatedType = async (
   stripeSubscription
 ) => {
   const stripeCustomer = await stripe.customers.retrieve(
@@ -34,17 +37,28 @@ const onSubscriptionCreated: OnSubscriptionCreatedType = async (
   if (!stripeCustomer) {
     throw Error(`Unknown Stripe customer ${stripeSubscription.customer}`);
   }
-
-  const subscription = new Subscription({
+  const update = {
     ...mapStripeSubscriptionProps(stripeSubscription),
     email: stripeCustomer.email,
-  });
-  await subscription.save();
+  };
+
+  const subscription = await Subscription.findOneAndUpdate(
+    { subscriptionId: update.subscriptionId },
+    update,
+    {
+      new: true,
+      upsert: true,
+      setDefaultsOnInsert: true,
+      useFindAndModify: false,
+    }
+  );
+
   return subscription;
 };
 
 const handlers = {
-  "customer.subscription.created": onSubscriptionCreated,
+  "customer.subscription.created": onSubscriptionCreatedOrUpdated,
+  "customer.subscription.updated": onSubscriptionCreatedOrUpdated,
 };
 
 type HandleEventType = (Buffer, string) => Promise<Subscription | void>;
@@ -70,7 +84,10 @@ const hasActiveSubscription: HasActiveSubscriptionType = async (userId) => {
   if (!user) return false;
 
   // Gets the latest subscription.
-  const subscription = await Subscription.findOne({ email: user.email })
+  const subscription = await Subscription.findOne({
+    email: user.email,
+    status: "active",
+  })
     .sort({ createdAt: -1 })
     .exec();
   if (!subscription) return false;

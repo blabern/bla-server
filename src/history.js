@@ -15,15 +15,15 @@ const read: ReadType = async (userId) => {
   return await HistoryEntry.find({ userId }).exec();
 };
 
-type UpdateType = (string, $Shape<HistoryEntry>) => Promise<HistoryEntry>;
+type UpdateType = (string, $Shape<HistoryEntry>) => Promise<?HistoryEntry>;
 
 const update: UpdateType = async (id, entryData) => {
-  await HistoryEntry.findByIdAndUpdate(id, entryData, {
+  const entry = await HistoryEntry.findByIdAndUpdate(id, entryData, {
     new: true,
     overwrite: true,
     useFindAndModify: false,
   });
-  return entryData;
+  return entry;
 };
 
 type DeleteType = (
