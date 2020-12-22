@@ -68,6 +68,16 @@ const initRoutes: InitRoutesType = (app) => {
     res.send("Ok.");
   });
 
+  app.get("/stripe/prices", async (req, res) => {
+    try {
+      const data = await stripe.readPrices();
+      res.send(data);
+    } catch (err) {
+      error(err);
+      return res.status(400).send({ error: err.message });
+    }
+  });
+
   // TODO add oauth token validation middleware here
 
   app.put("/user", async (req, res) => {

@@ -98,4 +98,41 @@ const hasActiveSubscription: HasActiveSubscriptionType = async (userId) => {
   return subscription.status === "active";
 };
 
-module.exports = { handleEvent, hasActiveSubscription };
+type ReadPricesType = () => Promise<{|
+  premium: {|
+    priceId: string,
+    formattedPrice: string,
+  |},
+|}>;
+
+const readPrices: ReadPricesType = async () => {
+  const productId =
+    process.env.NODE_ENV === "production"
+      ? "prod_Ibn916lxFKnyRQ"
+      : "prod_Iah8WDGh0CMuFL";
+  // TODO use other currencies/locales based on user (location?)
+  const locale = "en-US";
+  const currency = "usd";
+
+  const prices = await stripe.prices.list({
+    active: true,
+    product: productId,
+    currency,
+  });
+
+  // We should always have only one price for a given product and curency.
+  const price = camelcaseKeys(prices.data[0]);
+  const formattedPrice = (price.unitAmount / 100).toLocaleString(locale, {
+    style: "currency",
+    currency,
+  });
+
+  return {
+    premium: {
+      priceId: price.id,
+      formattedPrice,
+    },
+  };
+};
+
+module.exports = { handleEvent, hasActiveSubscription, readPrices };
