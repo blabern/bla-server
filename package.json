@@ -19,7 +19,7 @@
     "localtunnel": "^1.8.1"
   },
   "scripts": {
-    "server": "node ./src",
+    "start": "node ./src",
     "tunnel": "lt -s lingvoserver -p 3000"
   }
 }
