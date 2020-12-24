@@ -57,6 +57,9 @@ const onSubscriptionCreatedOrUpdated: OnSubscriptionCreatedOrUpdatedType = async
 };
 
 const handlers = {
+  // Always check if the event is also added to the hook on stripe,
+  // when adding events
+  // https://dashboard.stripe.com/webhooks
   "customer.subscription.created": onSubscriptionCreatedOrUpdated,
   "customer.subscription.updated": onSubscriptionCreatedOrUpdated,
 };
