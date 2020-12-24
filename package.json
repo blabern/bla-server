@@ -5,15 +5,21 @@
   },
   "dependencies": {
     "body-parser": "^1.15.0",
+    "camelcase-keys": "^6.2.2",
     "express": "^4.13.4",
-    "request": "^2.72.0",
-    "socket.io": "^1.4.5"
+    "flow-remove-types": "^2.140.0",
+    "mongoose": "^5.11.7",
+    "node-fetch": "^2.6.1",
+    "socket.io": "^1.4.5",
+    "stripe": "^8.129.0"
   },
   "devDependencies": {
+    "flow-bin": "^0.140.0",
+    "flow-typed": "^3.2.1",
     "localtunnel": "^1.8.1"
   },
   "scripts": {
-    "start": "node ./src",
-    "tunnel:server": "lt -s movielangserver -p 3000"
+    "server": "node ./src",
+    "tunnel": "lt -s lingvoserver -p 3000"
   }
 }
