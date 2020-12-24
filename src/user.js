@@ -1,14 +1,14 @@
 ﻿// @flow
-const { User } = require("./models");
+const { UserModel } = require("./models");
 
-type UpdateType = (User) => Promise<User>;
+type UpdateType = (UserModel) => Promise<UserModel>;
 
 const update: UpdateType = async (userData) => {
-  let user = await User.findOne({ email: userData.email }).exec();
+  let user = await UserModel.findOne({ email: userData.email }).exec();
 
   // It's a signup.
   if (!user) {
-    user = new User({
+    user = new UserModel({
       ...userData,
       createdAt: new Date(),
       updatedAt: new Date(),

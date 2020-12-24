@@ -1,24 +1,27 @@
 ﻿// @flow
-const { HistoryEntry } = require("./models");
+const { HistoryEntryModel } = require("./models");
 
-type CreateType = ($Shape<HistoryEntry>) => Promise<HistoryEntry>;
+type CreateType = ($Shape<HistoryEntryModel>) => Promise<HistoryEntryModel>;
 
 const create: CreateType = async (entryData) => {
-  const entry = new HistoryEntry(entryData);
+  const entry = new HistoryEntryModel(entryData);
   await entry.save();
   return entry;
 };
 
-type ReadType = (bson$ObjectId) => Promise<HistoryEntry>;
+type ReadType = (bson$ObjectId) => Promise<HistoryEntryModel>;
 
 const read: ReadType = async (userId) => {
-  return await HistoryEntry.find({ userId }).exec();
+  return await HistoryEntryModel.find({ userId }).exec();
 };
 
-type UpdateType = (string, $Shape<HistoryEntry>) => Promise<?HistoryEntry>;
+type UpdateType = (
+  string,
+  $Shape<HistoryEntryModel>
+) => Promise<?HistoryEntryModel>;
 
 const update: UpdateType = async (id, entryData) => {
-  const entry = await HistoryEntry.findByIdAndUpdate(id, entryData, {
+  const entry = await HistoryEntryModel.findByIdAndUpdate(id, entryData, {
     new: true,
     overwrite: true,
     useFindAndModify: false,
@@ -34,7 +37,7 @@ type DeleteType = (
 |}>;
 
 const del: DeleteType = async (ids) => {
-  const result = await HistoryEntry.deleteMany({ _id: { $in: ids } });
+  const result = await HistoryEntryModel.deleteMany({ _id: { $in: ids } });
   return { success: true, deletedCount: result.deletedCount };
 };
 

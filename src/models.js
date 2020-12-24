@@ -26,7 +26,7 @@ const UserSchema = new Schema({
 UserSchema.loadClass(UserDocument);
 
 // prettier-ignore
-const User: Class<UserDocument> = model("User", UserSchema);
+const UserModel: Class<UserDocument> = model("User", UserSchema);
 
 class HistoryEntryDocument /*:: extends Mongoose$Document */ {
   createdAt: Date;
@@ -45,7 +45,7 @@ const HistoryEntrySchema = new Schema({
 HistoryEntrySchema.loadClass(HistoryEntryDocument);
 
 // prettier-ignore
-const HistoryEntry: Class<HistoryEntryDocument> = model("HistoryEntry", HistoryEntrySchema);
+const HistoryEntryModel: Class<HistoryEntryDocument> = model("HistoryEntry", HistoryEntrySchema);
 
 class SubscriptionDocument /*:: extends Mongoose$Document */ {
   email: string;
@@ -72,10 +72,10 @@ const SubscriptionSchema = new Schema({
 
 SubscriptionSchema.loadClass(SubscriptionDocument);
 // prettier-ignore
-const Subscription: Class<SubscriptionDocument> = model("Subscription", SubscriptionSchema);
+const SubscriptionModel: Class<SubscriptionDocument> = model("Subscription", SubscriptionSchema);
 
 module.exports = {
-  User,
-  HistoryEntry,
-  Subscription,
+  UserModel,
+  HistoryEntryModel,
+  SubscriptionModel,
 };

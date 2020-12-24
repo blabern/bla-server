@@ -1,18 +1,18 @@
 ﻿// @flow
 const camelcaseKeys = require("camelcase-keys");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-const { Subscription, User } = require("./models");
+const { SubscriptionModel, UserModel } = require("./models");
 
 const { STRIPE_HOOKS_SECRET } = process.env;
 
 type StripeSubscriptionType = {
   id: string,
   created: number,
-  status: $PropertyType<Subscription, "status">,
+  status: $PropertyType<SubscriptionModel, "status">,
   customer: string,
 };
 
-type MapStripeSubscriptionPropsType = (StripeSubscriptionType) => $Shape<Subscription>;
+type MapStripeSubscriptionPropsType = (StripeSubscriptionType) => $Shape<SubscriptionModel>;
 
 const mapStripeSubscriptionProps: MapStripeSubscriptionPropsType = (
   stripeSubscription
@@ -23,7 +23,7 @@ const mapStripeSubscriptionProps: MapStripeSubscriptionPropsType = (
   status: stripeSubscription.status,
 });
 
-type OnSubscriptionCreatedOrUpdatedType = (StripeSubscriptionType) => Promise<?Subscription>;
+type OnSubscriptionCreatedOrUpdatedType = (StripeSubscriptionType) => Promise<?SubscriptionModel>;
 
 // In case user created a subscription but "customer.subscription.created" wasn't called
 // e.g. due to server restart.
@@ -42,7 +42,7 @@ const onSubscriptionCreatedOrUpdated: OnSubscriptionCreatedOrUpdatedType = async
     email: stripeCustomer.email,
   };
 
-  const subscription = await Subscription.findOneAndUpdate(
+  const subscription = await SubscriptionModel.findOneAndUpdate(
     { subscriptionId: update.subscriptionId },
     update,
     {
@@ -61,7 +61,7 @@ const handlers = {
   "customer.subscription.updated": onSubscriptionCreatedOrUpdated,
 };
 
-type HandleEventType = (Buffer, string) => Promise<Subscription | void>;
+type HandleEventType = (Buffer, string) => Promise<SubscriptionModel | void>;
 
 const handleEvent: HandleEventType = async (eventPayload, signature) => {
   const event = stripe.webhooks.constructEvent(
@@ -80,11 +80,11 @@ const handleEvent: HandleEventType = async (eventPayload, signature) => {
 type HasActiveSubscriptionType = (bson$ObjectId) => Promise<boolean>;
 
 const hasActiveSubscription: HasActiveSubscriptionType = async (userId) => {
-  const user = await User.findOne({ _id: userId }).exec();
+  const user = await UserModel.findOne({ _id: userId }).exec();
   if (!user) return false;
 
   // Gets the latest subscription.
-  const subscription = await Subscription.findOne({
+  const subscription = await SubscriptionModel.findOne({
     email: user.email,
     status: "active",
   })
@@ -103,7 +103,7 @@ const hasActiveSubscription: HasActiveSubscriptionType = async (userId) => {
 
     // If stripe doesn't have this subscription, we don't need to have it either.
     if (!stripeSubscription) {
-      await Subscription.deleteOne({ _id: subscription._id });
+      await SubscriptionModel.deleteOne({ _id: subscription._id });
       return false;
     }
 

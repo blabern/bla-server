@@ -7,7 +7,7 @@ const user = require("./user");
 const features = require("./features");
 const history = require("./history");
 const stripe = require("./stripe");
-const { User } = require("./models");
+const { UserModel } = require("./models");
 
 const log = console.log.bind(console);
 const error = console.error.bind(console);
@@ -83,7 +83,7 @@ const initRoutes: InitRoutesType = (app) => {
 
   app.put("/user", async (req, res) => {
     try {
-      const userData: User = (req.body: any);
+      const userData: UserModel = (req.body: any);
       const data = await user.update(userData);
       res.send(data);
     } catch (err) {
