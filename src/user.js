@@ -1,19 +1,22 @@
-﻿const { User } = require("./models");
+﻿// @flow
+const { User } = require("./models");
 
-const update = async (userData) => {
+type UpdateType = (User) => Promise<User>;
+
+const update: UpdateType = async (userData) => {
   let user = await User.findOne({ email: userData.email }).exec();
 
   // It's a signup.
   if (!user) {
     user = new User({
       ...userData,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
   }
 
   Object.assign(user, userData);
-  user.updatedAt = Date.now();
+  user.updatedAt = new Date();
   await user.save();
   return user;
 };
