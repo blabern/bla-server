@@ -1,7 +1,6 @@
 ﻿// @flow
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
-const translation = require("./translation");
 const socketio = require("./socketio");
 const user = require("./user");
 const features = require("./features");
@@ -109,24 +108,6 @@ const initRoutes: InitRoutesType = (app) => {
     }
     const connected = socketio.sendSubtitle({ auth, subtitle: body.subtitle });
     res.send({ subtitle: body.subtitle, connected: connected });
-  });
-
-  app.get("/translation/:langs/:original", async (req, res) => {
-    const original = req.params.original;
-    const langs = req.params.langs.split("-");
-    const options = {
-      src: langs[0],
-      target: langs[1],
-    };
-
-    //log("Translating", original);
-    try {
-      const tr = await translation.read(original, options);
-      res.send(tr);
-    } catch (err) {
-      error(err);
-      res.status(400).send({ error: err.message });
-    }
   });
 
   app.get("/features", async (req, res) => {
