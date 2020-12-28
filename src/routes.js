@@ -100,7 +100,7 @@ const initRoutes: InitRoutesType = (app) => {
 
     // We used to send query.auth, but it doesn't work with "+" chars and probably others,
     // and we started to use email as auth.
-    const auth = decodeURIComponent(query.auth) || body.auth;
+    const auth = query.auth || body.auth;
     if (!auth) {
       const err = new Error("Auth is not provided");
       error(err);
