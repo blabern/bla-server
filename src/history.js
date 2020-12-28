@@ -9,7 +9,7 @@ const create: CreateType = async (entryData) => {
   return entry;
 };
 
-type ReadType = (bson$ObjectId) => Promise<HistoryEntryModel>;
+type ReadType = (bson$ObjectId) => Promise<HistoryEntryModel[]>;
 
 const read: ReadType = async (userId) => {
   return await HistoryEntryModel.find({ userId }).exec();
@@ -41,4 +41,16 @@ const del: DeleteType = async (ids) => {
   return { success: true, deletedCount: result.deletedCount };
 };
 
-module.exports = { create, read, update, del };
+type DownloadType = (bson$ObjectId) => Promise<string>;
+
+const download: DownloadType = async (userId) => {
+  const history = await read(userId);
+  return history
+    .map((entry) => {
+      const original = entry.words.map((word) => word.text).join(" ");
+      return [original, entry.mainTranslation].join(",");
+    })
+    .join("\n");
+};
+
+module.exports = { create, read, update, del, download };

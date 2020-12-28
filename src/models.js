@@ -33,6 +33,7 @@ class HistoryEntryDocument /*:: extends Mongoose$Document */ {
   subtitle: string;
   words: {| pos: number, text: string |}[];
   userId: bson$ObjectId;
+  mainTranslation: string;
 }
 
 const HistoryEntrySchema = new Schema({
@@ -40,6 +41,7 @@ const HistoryEntrySchema = new Schema({
   subtitle: { type: String, required: true },
   words: { type: [{ pos: Number, text: String }], required: true },
   userId: { type: ObjectId, required: true },
+  mainTranslation: { type: String, required: true },
 });
 
 HistoryEntrySchema.loadClass(HistoryEntryDocument);

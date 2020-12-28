@@ -170,6 +170,20 @@ const initRoutes: InitRoutesType = (app) => {
     }
   });
 
+  app.get("/history/download/:userId", async (req, res) => {
+    try {
+      const userId: bson$ObjectId | void = (req.params.userId: any);
+      if (!userId) {
+        throw new Error("Unknown user");
+      }
+      const data = await history.download(userId);
+      res.type("text/csv").send(data);
+    } catch (err) {
+      error(err);
+      return res.status(400).send({ error: err.message });
+    }
+  });
+
   // Should always be the last.
   app.use(
     (
