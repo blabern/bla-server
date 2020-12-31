@@ -22,6 +22,14 @@ const initSocketio: InitSocketio = (server) => {
     }
   }
 
+  function removeSocket(auth, socket) {
+    if (!sockets[auth]) return;
+    const index = sockets[auth].indexOf(socket);
+    if (index !== -1) {
+      sockets[auth].splice(index, 1);
+    }
+  }
+
   io.on("connection", (socket) => {
     log("Socketio incomming connection");
     socket.emit("authRequest");
@@ -29,6 +37,11 @@ const initSocketio: InitSocketio = (server) => {
       log("Socketio authorization requested", auth);
       addSocket(auth, socket);
       socket.emit("authorized", auth);
+
+      socket.on("disconnect", () => {
+        log("Socketio client disconnected");
+        removeSocket(auth, socket);
+      });
     });
   });
 };
