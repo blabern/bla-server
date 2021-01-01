@@ -12,7 +12,9 @@ const create: CreateType = async (entryData) => {
 type ReadType = (bson$ObjectId) => Promise<HistoryEntryModel[]>;
 
 const read: ReadType = async (userId) => {
-  return await HistoryEntryModel.find({ userId }).exec();
+  return await HistoryEntryModel.find({ userId })
+    .sort({ createdAt: -1 })
+    .exec();
 };
 
 type UpdateType = (
