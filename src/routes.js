@@ -110,6 +110,16 @@ const initRoutes: InitRoutesType = (app) => {
     res.send({ subtitle: body.subtitle, connected: connected });
   });
 
+  app.post("/connected", (req, res) => {
+    const body: {| auth: string |} = (req.body: any);
+    const connected = socketio.getConnectedClients(body.auth);
+    res.send({ connected: connected });
+  });
+
+  app.get("/stats", (req, res) => {
+    res.send({ socketio: socketio.getStats() });
+  });
+
   app.get("/features", async (req, res) => {
     try {
       if (!req.state.userId) {

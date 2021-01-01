@@ -49,14 +49,29 @@ const initSocketio: InitSocketio = (server) => {
 type SendSubtitleType = ({| auth: string, subtitle: string |}) => number;
 
 const sendSubtitle: SendSubtitleType = ({ auth, subtitle }) => {
-  let connected = 0;
   if (sockets[auth]) {
-    connected = sockets[auth].length;
     sockets[auth].forEach((socket) => {
       socket.emit("subtitle", { original: subtitle });
     });
   }
-  return connected;
+
+  return getConnectedClients(auth);
 };
 
-module.exports = { initSocketio, sendSubtitle };
+type GetConnectedClientsType = (string) => number;
+
+const getConnectedClients: GetConnectedClientsType = (auth) => {
+  return sockets[auth] ? sockets[auth].length : 0;
+};
+
+type GetStatsType = () => {| connected: { string: number } |};
+
+const getStats: GetStatsType = () => {
+  const connected = {};
+  for (const auth in sockets) {
+    connected[auth] = sockets[auth].length;
+  }
+  return { connected };
+};
+
+module.exports = { initSocketio, sendSubtitle, getConnectedClients, getStats };
